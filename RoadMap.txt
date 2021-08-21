@@ -1,0 +1,12 @@
+
+MERN;
+
+1. React - Express- Socket- Peer Scaffolding
+2. HTML CSS Template--> Canvas
+3. Active List -> Join-->Left
+4. Connection List -> Join
+5. Mesh Calling -> Among Connected List
+6. Canvas-->New User Block Add --> User Remove
+.......................................................
+
+
