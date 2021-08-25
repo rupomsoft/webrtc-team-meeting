@@ -3,7 +3,7 @@ const app=express();
 const http=require('http');
 const expressServer = http.createServer(app);
 const {Server}=require('socket.io');
-const  io= new Server(expressServer);
+const io= new Server(expressServer);
 const path=require('path')
 const port=5000;
 
@@ -15,10 +15,36 @@ app.get('*',function (req,res) {
 
 
 
+let UserList=[];
+
+
 io.on('connection',function (socket) {
-    console.log("New User Connect ")
+
+
+
+    //Add New User
+    socket.on('CreateNewUser',function (user) {
+        UserList.push(user);
+        io.emit('AnnouceNewJoiner',user['Name']);
+        io.emit('UserList',UserList);
+        socket.PeerID=user['PeerID'];
+    })
+
+
+
     socket.on('disconnect',function () {
-        console.log("New User DisConnect ")
+
+
+     //Remove New User......
+     UserList.map((list,i)=>{
+        if(socket.PeerID===list['PeerID']){
+             UserList.splice(i,1);
+             io.emit('UserList',UserList);
+             io.emit('AnnouceLeftJoiner',list['Name']);
+        }
+     });
+
+
     })
 })
 

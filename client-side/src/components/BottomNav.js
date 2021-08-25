@@ -6,7 +6,15 @@ import {FaUsers} from "react-icons/fa";
 
 
 class BottomNav extends Component {
+
+
+
     render() {
+
+        let UserList=this.props.UserList;
+        let UserListCount=UserList.length;
+
+
 
         return (
             <div className=" bottom-navbar   p-3 fixed-bottom container-fluid">
@@ -36,7 +44,7 @@ class BottomNav extends Component {
 
 
                                 <button  className="btn mx-1">
-                                    <FaUsers className="bottom-nav-item"/> <span className="badge">00</span>
+                                    <FaUsers className="bottom-nav-item"/> <span className="badge">{UserListCount}</span>
                                 </button>
 
                             </div>
