@@ -29,7 +29,7 @@ class ToastHelper{
 
     }
     AnnouceLeftJoiner(name){
-        cogoToast.success(
+        cogoToast.error(
             <div className="toast-text">
                 {name} has been left !
             </div>,
