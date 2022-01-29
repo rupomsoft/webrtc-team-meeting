@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="ef00d1eb-42d3-4927-af69-a79b99383d4e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/client-side/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client-side/src/helper/ToastHelper.js" beforeDir="false" afterPath="$PROJECT_DIR$/client-side/src/helper/ToastHelper.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client-side/src/pages/MeetingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/client-side/src/pages/MeetingPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -47,6 +44,8 @@
       <workItem from="1631361418956" duration="5918000" />
       <workItem from="1631371144349" duration="3000" />
       <workItem from="1631376027004" duration="5935000" />
+      <workItem from="1632908626550" duration="900000" />
+      <workItem from="1633775755889" duration="2016000" />
     </task>
     <servers />
   </component>

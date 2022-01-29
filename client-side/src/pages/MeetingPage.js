@@ -7,9 +7,7 @@ import Peer from 'peerjs'
 import {AnnouceLeftJoiner, AnnouceNewJoiner, RequestFail} from "../helper/ToastHelper";
 import io from 'socket.io-client';
 import FullScreenLoader from "../components/FullScreenLoader";
-import * as stream from "stream";
 const socket=io.connect('/');
-
 class MeetingPage extends Component {
 
     constructor(props) {
@@ -22,9 +20,9 @@ class MeetingPage extends Component {
             isLoading:"d-none",
             localVideo:true,
             localAudio:true,
+            ConnectedPeerList:[],
         }
     }
-
 
     pageRedirect=()=>{
         if(this.state.Redirect===true){
@@ -32,16 +30,15 @@ class MeetingPage extends Component {
         }
     }
 
-
     componentDidMount() {
         if(getName()===null){
             this.setState({Redirect:true})
         }
         else {
             this.createPeerID();
+            this.GenerateSelfVideoPreview();
         }
     }
-
 
     createPeerID=()=>{
       this.setState({isLoading:""})
@@ -59,15 +56,18 @@ class MeetingPage extends Component {
                 let NewUser={Name:getName(),PeerID:id}
                 socket.emit('CreateNewUser',NewUser);
 
+
                 // Annouce New Joiner Received From Socket Server-Side
                 socket.on('AnnouceNewJoiner',(Name)=>{
                     AnnouceNewJoiner(Name);
                 })
 
+
                 //Update Joiner List
                 socket.on('UserList',(UserList)=>{
                     this.setState({UserList:UserList});
                 })
+
 
                 // Annouce Left
                 socket.on('AnnouceLeftJoiner',(Name)=>{
@@ -76,7 +76,7 @@ class MeetingPage extends Component {
 
                 this.setState({isLoading:"d-none"});
 
-                this.selfVidePreview();
+                this.GetJoinerList();
 
             }
             else {
@@ -89,34 +89,92 @@ class MeetingPage extends Component {
     }
 
 
+    GetJoinerList=()=>{
+        socket.on('UserList',(AppUserList)=>{
+            this.setState({UserList:AppUserList});
+            AppUserList.map((list,i)=>{
+                this.CreateMutualConnection(list['PeerID'])
+                this.ReceiveMutualVideoCall();
+                this.CreateMutualVideoCall(list['PeerID'])
+            })
+        });
+    }
 
-    // Local Stream
-    selfVidePreview=()=>{
-        let myVideo=document.createElement('video');
+    GenerateSelfVideoPreview=()=>{
+        const myVideo = document.createElement('video')
         myVideo.muted = true
-        navigator.mediaDevices.getUserMedia({video:this.state.localVideo,audio:this.state.localAudio})
-            .then((stream)=>{
-                this.addVideoGrid(myVideo,stream)
-            }).catch((err)=>{
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true
+        }).then(stream => {
+            this.addVideoStream(myVideo, stream)
         })
     }
-    addVideoGrid=(video,stream)=>{
-        const videoCanvas = document.getElementById('video-canvas');
-        video.srcObject=stream;
+
+    addVideoStream=(video, stream)=> {
+        const videoGrid = document.getElementById('video-grid')
+        video.srcObject = stream
         video.setAttribute("width", "280");
         video.setAttribute("height", "280");
-        video.classList.add('video-preview');
+        video.classList.add('video-preview')
         video.addEventListener('loadedmetadata', () => {
             video.play()
-        });
-        videoCanvas.append(video);
+        })
+        videoGrid.append(video)
     }
 
 
-    //Call Receive
+
+    CreateMutualConnection=(OtherPeerID)=>{
+        let MyConnectedPeerList=this.state.ConnectedPeerList;
+        if(!MyConnectedPeerList.includes(OtherPeerID)){
+            let myPeer=this.state.PeerObj;
+            let conn=myPeer.connect(OtherPeerID);
+            conn.on('open',()=>{
+                let MyConnectedPeerList=this.state.ConnectedPeerList;
+                MyConnectedPeerList.push(OtherPeerID);
+                this.setState({ConnectedPeerList:MyConnectedPeerList})
+                conn.send(getName());
+            })
+            myPeer.on('connection',(conn)=>{
+                conn.on('data',(data)=>{
+                    console.log(data)
+                })
+            })
+        }
+    }
 
 
-    //Remote Stream
+    CreateMutualVideoCall=(OtherPeerID)=>{
+        let MyConnectedPeerList=this.state.ConnectedPeerList;
+        if(!MyConnectedPeerList.includes(OtherPeerID)){
+            let myPeer=this.state.PeerObj;
+            navigator.mediaDevices.getUserMedia(this.state.Constraints)
+                .then((stream)=>{
+                    let call=myPeer.call(OtherPeerID,stream)
+                    const video = document.createElement('video')
+                    call.on('stream',(remoteStream)=>{
+                        this.addVideoStream(video, remoteStream)
+                    })
+                })
+                .catch(()=>{
+                })
+        }
+    }
+
+    ReceiveMutualVideoCall=()=>{
+        let myPeer=this.state.PeerObj;
+        myPeer.on('call',(call)=>{
+            navigator.mediaDevices.getUserMedia(this.state.Constraints)
+                .then((stream)=>{
+                    call.answer(stream)
+                    call.on('stream',(remoteStream)=>{
+                    })
+                })
+                .catch(()=>{
+                })
+        })
+    }
 
 
     render() {
@@ -126,9 +184,7 @@ class MeetingPage extends Component {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-12">
-                            <div id="video-canvas">
-
-                            </div>
+                            <div id="video-grid"></div>
                         </div>
                     </div>
                 </div>
